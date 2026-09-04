@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Infinity Zoom - Mobile & Responsive</title>
+  <title>Infinity Zoom - Modern UI</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/openseadragon.min.js"></script>
   <style>
     html, body {
@@ -12,16 +12,152 @@
       -webkit-user-select: none;
       user-select: none;
       touch-action: none;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
     #openseadragon1 { width: 100vw; height: 100vh; }
+    
     .photo-marker {
       border: 2px solid #ffffff;
       box-shadow: 0 0 8px #ffffff;
       pointer-events: none;
+      box-sizing: border-box;
+    }
+
+    /* მართვის პანელი - მოდერნიზებული, მრგვალი ფორმებით და გლასმორფიზმით */
+    .controls-container {
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      background: rgba(20, 20, 30, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      text-align: left;
+      outline: none;
+    }
+
+    .action-btn .icon {
+      font-size: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      transition: background 0.3s;
+    }
+
+    .action-btn:hover {
+      background: rgba(40, 40, 60, 0.85);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .action-btn:hover .icon {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .action-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* კონკრეტული ღილაკების ფერადი აქცენტები მრგვალი აიქონებით */
+    #reset-btn .icon { color: #38ef7d; }
+    #zoom-in-btn .icon { color: #00d2ff; }
+    #zoom-out-btn .icon { color: #f12711; }
+    
+    #autoplay-btn {
+      background: linear-gradient(135deg, rgba(0, 210, 255, 0.2), rgba(58, 123, 213, 0.2));
+      border-color: rgba(0, 210, 255, 0.4);
+    }
+    #autoplay-btn .icon { color: #00d2ff; background: rgba(0, 210, 255, 0.2); }
+    #autoplay-btn.active {
+      background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 0 20px rgba(0, 210, 255, 0.6);
+    }
+    #autoplay-btn.active .icon { background: rgba(255, 255, 255, 0.3); color: #fff; }
+
+    #autoreverse-btn {
+      background: linear-gradient(135deg, rgba(241, 39, 17, 0.2), rgba(245, 175, 25, 0.2));
+      border-color: rgba(241, 39, 17, 0.4);
+    }
+    #autoreverse-btn .icon { color: #f5af19; background: rgba(245, 175, 25, 0.2); }
+    #autoreverse-btn.active {
+      background: linear-gradient(135deg, #f12711, #f5af19);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 0 20px rgba(241, 39, 17, 0.6);
+    }
+    #autoreverse-btn.active .icon { background: rgba(255, 255, 255, 0.3); color: #fff; }
+
+    #fullscreen-btn .icon { color: #b224ef; }
+
+    /* პროგრეს-ბარის მოდერნიზებული სტილი */
+    .progress-bar-container {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50%;
+      max-width: 380px;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 5px;
+      overflow: hidden;
+      z-index: 1000;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00d2ff, #b224ef, #f12711);
+      border-radius: 5px;
+      transition: width 0.1s ease-out;
     }
   </style>
 </head>
 <body>
+
+  <!-- მოდერნიზებული მართვის ღილაკები აიქონებით -->
+  <div class="controls-container">
+    <button class="action-btn" id="reset-btn"><span class="icon">🔄</span> საწყისი ხედი</button>
+    <button class="action-btn" id="zoom-in-btn"><span class="icon">➕</span> Zoom In</button>
+    <button class="action-btn" id="zoom-out-btn"><span class="icon">➖</span> Zoom Out</button>
+    <button class="action-btn" id="autoplay-btn"><span class="icon">▶</span> Auto Play</button>
+    <button class="action-btn" id="autoreverse-btn"><span class="icon">◀</span> Auto Reverse</button>
+    <button class="action-btn" id="fullscreen-btn"><span class="icon">⛶</span> Fullscreen</button>
+  </div>
+
+  <!-- პროგრეს ბარი -->
+  <div class="progress-bar-container">
+    <div class="progress-bar-fill" id="progress-fill"></div>
+  </div>
 
   <div id="openseadragon1"></div>
 
@@ -35,18 +171,16 @@
         { type: 'image', url: 'Space_3.jpg' }
       ],
       showNavigationControl: false,
-      animationTime: 1.2,
-      springStiffness: 6.5,
+      animationTime: 1.5,
+      springStiffness: 5.0,
       minZoomLevel: 0.8,
       maxZoomLevel: Infinity,
-      visibilityRatio: 1.0,
-      constrainDuringPan: true,
+      visibilityRatio: 0.0,
+      constrainDuringPan: false,
 
-      // --- ადგილზე გასაჩერებლად (Pan გათიშვა) ---
-      panHorizontal: false, // ჰორიზონტალური მოძრაობის გათიშვა
-      panVertical: false,   // ვერტიკალური მოძრაობის გათიშვა
+      panHorizontal: false,
+      panVertical: false,
 
-      // Touch პარამეტრები - მხოლოდ ზუმი
       zoomPerClick: 2,
       zoomPerScroll: 1.2,
       gestureSettingsTouch: {
@@ -55,71 +189,250 @@
         clickToZoom: true,
         pinchRotate: false,
         flickEnabled: false,
-        dragToPan: false // თითის გასმით გადაადგილების ბლოკირება
+        dragToPan: false
       },
       gestureSettingsMouse: {
         clickToZoom: true,
         dblClickToZoom: true,
-        dragToPan: false // მაუსით გადაადგილების ბლოკირებაც
+        dragToPan: false
       }
     });
 
-    // ფარდობითი პოზიციები (0.0 - 1.0)
     var relX1 = 0.7920, relY1 = 0.5174; 
     var relX2 = 0.5000, relY2 = 0.5000; 
 
-    // ცენტრების გამოთვლა
-    var centerP2 = new OpenSeadragon.Point(relX1, relY1);
-    var centerP3 = new OpenSeadragon.Point(
-      (relX1 - 0.001 / 2) + (relX2 * 0.001),
-      (relY1 - 0.001 / 2) + (relY2 * 0.001)
-    );
+    var centerP1;
+    var centerP2;
+    var centerP3;
+    var maxZoomTarget = 1000000;
 
     viewer.addHandler('open', function() {
-      // 1. Space_2
+      var img1 = viewer.world.getItemAt(0);
+      if (img1) {
+        centerP1 = img1.getClippedBounds().getCenter();
+      }
+
       var img2 = viewer.world.getItemAt(1);
+      var img3 = viewer.world.getItemAt(2);
+
       if (img2) {
         var scale2 = 0.001; 
         img2.setWidth(scale2);
-        var pX2 = relX1 - scale2/2;
-        var pY2 = relY1 - scale2/2;
+        
+        var aspect2 = img2.source.aspectRatio;
+        var height2 = scale2 * aspect2;
+
+        var pX2 = relX1 - scale2 / 2;
+        var pY2 = relY1 - height2 / 2;
         img2.setPosition(new OpenSeadragon.Point(pX2, pY2));
 
+        viewer.removeOverlay("marker2");
         var marker2 = document.createElement("div");
+        marker2.id = "marker2";
         marker2.className = "photo-marker";
-        viewer.addOverlay({ element: marker2, location: new OpenSeadragon.Rect(pX2, pY2, scale2, scale2) });
-      }
+        viewer.addOverlay({ 
+          element: marker2, 
+          location: img2.getClippedBounds()
+        });
 
-      // 2. Space_3
-      var img3 = viewer.world.getItemAt(2);
-      if (img3) {
-        var scale3 = 0.001 * 0.001; 
-        img3.setWidth(scale3);
-        var pX3 = centerP3.x - scale3/2;
-        var pY3 = centerP3.y - scale3/2;
-        img3.setPosition(new OpenSeadragon.Point(pX3, pY3));
+        centerP2 = img2.getClippedBounds().getCenter();
 
-        var marker3 = document.createElement("div");
-        marker3.className = "photo-marker";
-        viewer.addOverlay({ element: marker3, location: new OpenSeadragon.Rect(pX3, pY3, scale3, scale3) });
+        if (img3) {
+          var scale3 = scale2 * scale2; 
+          img3.setWidth(scale3);
+          
+          var aspect3 = img3.source.aspectRatio;
+          var height3 = scale3 * aspect3;
+
+          var pX3 = (pX2 + relX2 * scale2) - scale3 / 2;
+          var pY3 = (pY2 + relY2 * height2) - height3 / 2;
+          img3.setPosition(new OpenSeadragon.Point(pX3, pY3));
+
+          viewer.removeOverlay("marker3");
+          var marker3 = document.createElement("div");
+          marker3.id = "marker3";
+          marker3.className = "photo-marker";
+          viewer.addOverlay({ 
+            element: marker3, 
+            location: img3.getClippedBounds()
+          });
+
+          centerP3 = img3.getClippedBounds().getCenter();
+        }
       }
     });
 
-    // ზუმის დამჭერი
-    var isPanning = false;
-    viewer.addHandler('zoom', function(e) {
-      if (isPanning) return;
-      
+    // აქტიური ცენტრის განსაზღვრა
+    function getActiveCenter() {
       var currentZoom = viewer.viewport.getZoom();
+      if (currentZoom > 1000 && centerP3) {
+        return centerP3;
+      } else if (currentZoom > 1.2 && centerP2) {
+        return centerP2;
+      }
+      return centerP1 || new OpenSeadragon.Point(0.5, 0.5);
+    }
+
+    // მიმდინარე პროგრესის გაანგარიშება (0-დან 1-მდე)
+    function getCurrentProgress() {
+      var currentZoom = viewer.viewport.getZoom();
+      var minZoom = viewer.viewport.getMinZoom();
+      var progress = (Math.log(currentZoom / minZoom) / Math.log(maxZoomTarget / minZoom));
+      return Math.min(Math.max(progress, 0), 1);
+    }
+
+    // ზუმისას ცენტრის გასწორება და პროგრეს ბარის განახლება
+    var progressFill = document.getElementById('progress-fill');
+    viewer.addHandler('zoom', function() {
+      var targetCenter = getActiveCenter();
+      viewer.viewport.panTo(targetCenter, false);
+
+      var progress = getCurrentProgress() * 100;
+      progressFill.style.width = progress + '%';
+    });
+
+    // --- 1. ღილაკების მოქმედებები ---
+    document.getElementById('reset-btn').addEventListener('click', function() {
+      window.location.reload();
+    });
+
+    document.getElementById('zoom-in-btn').addEventListener('click', function() {
+      stopAllAnimations();
+      var currentZoom = viewer.viewport.getZoom();
+      var targetCenter = getActiveCenter();
+      viewer.viewport.zoomTo(currentZoom * 2.0, targetCenter, false);
+    });
+
+    document.getElementById('zoom-out-btn').addEventListener('click', function() {
+      stopAllAnimations();
+      var currentZoom = viewer.viewport.getZoom();
+      var targetCenter = getActiveCenter();
+      viewer.viewport.zoomTo(currentZoom * 0.5, targetCenter, false);
+    });
+
+    function stopAllAnimations() {
+      stopAutoPlay();
+      stopAutoReverse();
+    }
+
+    // --- 2. რბილი Auto Play ---
+    var isAutoPlaying = false;
+    var autoPlayInterval;
+    var autoplayBtn = document.getElementById('autoplay-btn');
+
+    function startAutoPlay() {
+      stopAllAnimations();
+      isAutoPlaying = true;
+      autoplayBtn.classList.add('active');
+      autoplayBtn.innerHTML = '<span class="icon">⏸</span> Pause';
       
-      if (currentZoom > 1.2 && currentZoom <= 1000) {
-        isPanning = true;
-        viewer.viewport.panTo(centerP2, false);
-        setTimeout(function() { isPanning = false; }, 300);
-      } else if (currentZoom > 1000) {
-        isPanning = true;
-        viewer.viewport.panTo(centerP3, false);
-        setTimeout(function() { isPanning = false; }, 300);
+      autoPlayInterval = setInterval(function() {
+        var p = getCurrentProgress(); 
+
+        if (p >= 0.999) {
+          stopAutoPlay();
+          return;
+        }
+
+        var speedFactor = Math.sin(p * Math.PI); 
+        var zoomMultiplier = 1.008 + (0.027 * speedFactor);
+
+        var currentZoom = viewer.viewport.getZoom();
+        var targetCenter = getActiveCenter();
+        viewer.viewport.zoomTo(currentZoom * zoomMultiplier, targetCenter, false);
+      }, 30);
+    }
+
+    function stopAutoPlay() {
+      if (isAutoPlaying) {
+        isAutoPlaying = false;
+        clearInterval(autoPlayInterval);
+        autoplayBtn.classList.remove('active');
+        autoplayBtn.innerHTML = '<span class="icon">▶</span> Auto Play';
+      }
+    }
+
+    autoplayBtn.addEventListener('click', function() {
+      if (isAutoPlaying) {
+        stopAutoPlay();
+      } else {
+        startAutoPlay();
+      }
+    });
+
+    // --- 3. რბილი Auto Reverse Play (უკან სვლა საწყისამდე) ---
+    var isAutoReversing = false;
+    var autoReverseInterval;
+    var autoreverseBtn = document.getElementById('autoreverse-btn');
+
+    function startAutoReverse() {
+      stopAllAnimations();
+      isAutoReversing = true;
+      autoreverseBtn.classList.add('active');
+      autoreverseBtn.innerHTML = '<span class="icon">⏸</span> Pause Rev';
+      
+      autoReverseInterval = setInterval(function() {
+        var p = getCurrentProgress(); 
+        var minZoom = viewer.viewport.getMinZoom();
+
+        if (p <= 0.001 || viewer.viewport.getZoom() <= minZoom * 1.01) {
+          stopAutoReverse();
+          viewer.viewport.zoomTo(minZoom, centerP1, false);
+          viewer.viewport.panTo(centerP1, false);
+          return;
+        }
+
+        var speedFactor = Math.sin(p * Math.PI); 
+        var zoomDivisor = 1.008 + (0.027 * speedFactor);
+
+        var currentZoom = viewer.viewport.getZoom();
+        var targetCenter = getActiveCenter();
+        viewer.viewport.zoomTo(currentZoom / zoomDivisor, targetCenter, false);
+      }, 30);
+    }
+
+    function stopAutoReverse() {
+      if (isAutoReversing) {
+        isAutoReversing = false;
+        clearInterval(autoReverseInterval);
+        autoreverseBtn.classList.remove('active');
+        autoreverseBtn.innerHTML = '<span class="icon">◀</span> Auto Reverse';
+      }
+    }
+
+    autoreverseBtn.addEventListener('click', function() {
+      if (isAutoReversing) {
+        stopAutoReverse();
+      } else {
+        startAutoReverse();
+      }
+    });
+
+    // --- 4. Fullscreen ფუნქციონალი ---
+    document.getElementById('fullscreen-btn').addEventListener('click', function() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.log(`Fullscreen error: ${err.message}`);
+        });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    });
+
+    // --- 5. კლავიატურის ღილაკები (+, -, Space, Esc) ---
+    window.addEventListener('keydown', function(e) {
+      if (e.key === '+' || e.key === '=') {
+        stopAllAnimations();
+        var currentZoom = viewer.viewport.getZoom();
+        viewer.viewport.zoomTo(currentZoom * 1.5, getActiveCenter(), false);
+      } else if (e.key === '-' || e.key === '_') {
+        stopAllAnimations();
+        var currentZoom = viewer.viewport.getZoom();
+        viewer.viewport.zoomTo(currentZoom * 0.67, getActiveCenter(), false);
+      } else if (e.key === ' ' || e.key === 'Escape') {
+        window.location.reload();
       }
     });
   </script>
