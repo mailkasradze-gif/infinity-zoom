@@ -2,7 +2,6 @@
 <html lang="ka">
 <head>
   <meta charset="UTF-8">
-  <!-- მობილურის ეკრანისთვის აუცილებელი პარამეტრები -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Infinity Zoom - Mobile & Responsive</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/openseadragon.min.js"></script>
@@ -10,9 +9,9 @@
     html, body {
       width: 100%; height: 100%; margin: 0; padding: 0;
       background-color: #000; overflow: hidden;
-      -webkit-user-select: none; /* მობილურზე ტექსტის არჩევის ბლოკირება */
+      -webkit-user-select: none;
       user-select: none;
-      touch-action: none; /* ბრაუზერის სტანდარტული სქროლის გათიშვა */
+      touch-action: none;
     }
     #openseadragon1 { width: 100vw; height: 100vh; }
     .photo-marker {
@@ -35,22 +34,33 @@
         { type: 'image', url: 'Space_2.jpg' },
         { type: 'image', url: 'Space_3.jpg' }
       ],
-      showNavigationControl: false, // მობილურზე ზედმეტი ღილაკების დამალვა
+      showNavigationControl: false,
       animationTime: 1.2,
       springStiffness: 6.5,
       minZoomLevel: 0.8,
       maxZoomLevel: Infinity,
       visibilityRatio: 1.0,
       constrainDuringPan: true,
-      
-      // Touch & Mouse პარამეტრები
+
+      // --- ადგილზე გასაჩერებლად (Pan გათიშვა) ---
+      panHorizontal: false, // ჰორიზონტალური მოძრაობის გათიშვა
+      panVertical: false,   // ვერტიკალური მოძრაობის გათიშვა
+
+      // Touch პარამეტრები - მხოლოდ ზუმი
       zoomPerClick: 2,
       zoomPerScroll: 1.2,
       gestureSettingsTouch: {
         pinchToZoom: true,
         scrollToZoom: false,
         clickToZoom: true,
-        pinchRotate: false
+        pinchRotate: false,
+        flickEnabled: false,
+        dragToPan: false // თითის გასმით გადაადგილების ბლოკირება
+      },
+      gestureSettingsMouse: {
+        clickToZoom: true,
+        dblClickToZoom: true,
+        dragToPan: false // მაუსით გადაადგილების ბლოკირებაც
       }
     });
 
@@ -95,14 +105,13 @@
       }
     });
 
-    // ზუმის დამჭერი ავტო-ცენტრირებისთვის
+    // ზუმის დამჭერი
     var isPanning = false;
     viewer.addHandler('zoom', function(e) {
       if (isPanning) return;
       
       var currentZoom = viewer.viewport.getZoom();
       
-      // რბილი გადაყვანა ცენტრისკენ
       if (currentZoom > 1.2 && currentZoom <= 1000) {
         isPanning = true;
         viewer.viewport.panTo(centerP2, false);
