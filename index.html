@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8">
+  <!-- მობილურის ეკრანისთვის აუცილებელი პარამეტრები -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Infinity Zoom - Mobile & Responsive</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/openseadragon.min.js"></script>
+  <style>
+    html, body {
+      width: 100%; height: 100%; margin: 0; padding: 0;
+      background-color: #000; overflow: hidden;
+      -webkit-user-select: none; /* მობილურზე ტექსტის არჩევის ბლოკირება */
+      user-select: none;
+      touch-action: none; /* ბრაუზერის სტანდარტული სქროლის გათიშვა */
+    }
+    #openseadragon1 { width: 100vw; height: 100vh; }
+    .photo-marker {
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 8px #ffffff;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="openseadragon1"></div>
+
+  <script>
+    var viewer = OpenSeadragon({
+      id: "openseadragon1",
+      prefixUrl: "https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/images/",
+      tileSources: [
+        { type: 'image', url: 'Space_1.jpg' },
+        { type: 'image', url: 'Space_2.jpg' },
+        { type: 'image', url: 'Space_3.jpg' }
+      ],
+      showNavigationControl: false, // მობილურზე ზედმეტი ღილაკების დამალვა
+      animationTime: 1.2,
+      springStiffness: 6.5,
+      minZoomLevel: 0.8,
+      maxZoomLevel: Infinity,
+      visibilityRatio: 1.0,
+      constrainDuringPan: true,
+      
+      // Touch & Mouse პარამეტრები
+      zoomPerClick: 2,
+      zoomPerScroll: 1.2,
+      gestureSettingsTouch: {
+        pinchToZoom: true,
+        scrollToZoom: false,
+        clickToZoom: true,
+        pinchRotate: false
+      }
+    });
+
+    // ფარდობითი პოზიციები (0.0 - 1.0)
+    var relX1 = 0.7920, relY1 = 0.5174; 
+    var relX2 = 0.5000, relY2 = 0.5000; 
+
+    // ცენტრების გამოთვლა
+    var centerP2 = new OpenSeadragon.Point(relX1, relY1);
+    var centerP3 = new OpenSeadragon.Point(
+      (relX1 - 0.001 / 2) + (relX2 * 0.001),
+      (relY1 - 0.001 / 2) + (relY2 * 0.001)
+    );
+
+    viewer.addHandler('open', function() {
+      // 1. Space_2
+      var img2 = viewer.world.getItemAt(1);
+      if (img2) {
+        var scale2 = 0.001; 
+        img2.setWidth(scale2);
+        var pX2 = relX1 - scale2/2;
+        var pY2 = relY1 - scale2/2;
+        img2.setPosition(new OpenSeadragon.Point(pX2, pY2));
+
+        var marker2 = document.createElement("div");
+        marker2.className = "photo-marker";
+        viewer.addOverlay({ element: marker2, location: new OpenSeadragon.Rect(pX2, pY2, scale2, scale2) });
+      }
+
+      // 2. Space_3
+      var img3 = viewer.world.getItemAt(2);
+      if (img3) {
+        var scale3 = 0.001 * 0.001; 
+        img3.setWidth(scale3);
+        var pX3 = centerP3.x - scale3/2;
+        var pY3 = centerP3.y - scale3/2;
+        img3.setPosition(new OpenSeadragon.Point(pX3, pY3));
+
+        var marker3 = document.createElement("div");
+        marker3.className = "photo-marker";
+        viewer.addOverlay({ element: marker3, location: new OpenSeadragon.Rect(pX3, pY3, scale3, scale3) });
+      }
+    });
+
+    // ზუმის დამჭერი ავტო-ცენტრირებისთვის
+    var isPanning = false;
+    viewer.addHandler('zoom', function(e) {
+      if (isPanning) return;
+      
+      var currentZoom = viewer.viewport.getZoom();
+      
+      // რბილი გადაყვანა ცენტრისკენ
+      if (currentZoom > 1.2 && currentZoom <= 1000) {
+        isPanning = true;
+        viewer.viewport.panTo(centerP2, false);
+        setTimeout(function() { isPanning = false; }, 300);
+      } else if (currentZoom > 1000) {
+        isPanning = true;
+        viewer.viewport.panTo(centerP3, false);
+        setTimeout(function() { isPanning = false; }, 300);
+      }
+    });
+  </script>
+
+</body>
+</html>
