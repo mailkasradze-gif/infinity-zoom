@@ -3,160 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Infinity Zoom - Perfect Load</title>
+  <title>Office Infinity Zoom - Complete</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/openseadragon.min.js"></script>
   <style>
     html, body {
       width: 100%; height: 100%; margin: 0; padding: 0;
       background-color: #000; overflow: hidden;
-      -webkit-user-select: none;
-      user-select: none;
-      touch-action: none;
+      -webkit-user-select: none; user-select: none; touch-action: none;
       font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
+    #openseadragon1 { width: 100vw; height: 100vh; }
     
-    /* თავიდან სრულად ვმალავთ ვიუერს (Opacity 0), რომ ციმციმი არ გამოჩნდეს */
-    #openseadragon1 { 
-      width: 100vw; 
-      height: 100vh; 
-      opacity: 0; 
-      visibility: hidden;
-      transition: opacity 0.6s ease-in-out; 
-    }
-    
-    .photo-marker {
-      border: 2px solid #ffffff;
-      box-shadow: 0 0 8px #ffffff;
-      pointer-events: none;
-      box-sizing: border-box;
-    }
-
-    /* მართვის პანელი - მოდერნიზებული, მრგვალი ფორმებით და გლასმორფიზმით */
+    /* ღილაკების განთავსება ქვედა მხარეს ცენტრში */
     .controls-container {
-      position: absolute;
-      top: 24px;
-      left: 24px;
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+      position: absolute; bottom: 45px; left: 50%; transform: translateX(-50%);
+      z-index: 1000; display: flex; flex-direction: row; gap: 12px;
     }
-
     .action-btn {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 18px;
-      background: rgba(20, 20, 30, 0.75);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 14px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      text-align: left;
-      outline: none;
+      display: flex; align-items: center; justify-content: center; 
+      width: 48px; height: 48px; padding: 0;
+      background: rgba(20, 20, 30, 0.75); backdrop-filter: blur(12px);
+      color: #fff; border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px; font-size: 18px; cursor: pointer;
     }
-
-    .action-btn .icon {
-      font-size: 16px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 24px;
-      height: 24px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.1);
-      transition: background 0.3s;
-    }
-
-    .action-btn:hover {
-      background: rgba(40, 40, 60, 0.85);
-      border-color: rgba(255, 255, 255, 0.3);
-      transform: translateY(-2px);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-    }
-
-    .action-btn:hover .icon {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    .action-btn:active {
-      transform: translateY(1px);
-    }
-
-    #reset-btn .icon { color: #38ef7d; }
-    #zoom-in-btn .icon { color: #00d2ff; }
-    #zoom-out-btn .icon { color: #f12711; }
-    
-    #autoplay-btn {
-      background: linear-gradient(135deg, rgba(0, 210, 255, 0.2), rgba(58, 123, 213, 0.2));
-      border-color: rgba(0, 210, 255, 0.4);
-    }
-    #autoplay-btn .icon { color: #00d2ff; background: rgba(0, 210, 255, 0.2); }
-    #autoplay-btn.active {
-      background: linear-gradient(135deg, #00d2ff, #3a7bd5);
-      color: #fff;
-      border-color: transparent;
-      box-shadow: 0 0 20px rgba(0, 210, 255, 0.6);
-    }
-    #autoplay-btn.active .icon { background: rgba(255, 255, 255, 0.3); color: #fff; }
-
-    #autoreverse-btn {
-      background: linear-gradient(135deg, rgba(241, 39, 17, 0.2), rgba(245, 175, 25, 0.2));
-      border-color: rgba(241, 39, 17, 0.4);
-    }
-    #autoreverse-btn .icon { color: #f5af19; background: rgba(245, 175, 25, 0.2); }
-    #autoreverse-btn.active {
-      background: linear-gradient(135deg, #f12711, #f5af19);
-      color: #fff;
-      border-color: transparent;
-      box-shadow: 0 0 20px rgba(241, 39, 17, 0.6);
-    }
-    #autoreverse-btn.active .icon { background: rgba(255, 255, 255, 0.3); color: #fff; }
-
-    #fullscreen-btn .icon { color: #b224ef; }
 
     .progress-bar-container {
-      position: absolute;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 50%;
-      max-width: 380px;
-      height: 10px;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-radius: 5px;
-      overflow: hidden;
-      z-index: 1000;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+      width: 50%; max-width: 380px; height: 6px; background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px; overflow: hidden; z-index: 1000;
     }
-
     .progress-bar-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #00d2ff, #b224ef, #f12711);
-      border-radius: 5px;
+      height: 100%; width: 0%; background: linear-gradient(90deg, #00d2ff, #b224ef, #f12711);
       transition: width 0.1s ease-out;
+    }
+    /* დამტვირთავი ეკრანი (Loading Screen) */
+    #loader {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: #000; z-index: 9999; display: flex;
+      justify-content: center; align-items: center; color: #fff;
+      font-size: 20px; font-weight: 600; transition: opacity 0.5s ease;
     }
   </style>
 </head>
 <body>
 
+  <div id="loader">იტვირთება...</div>
+
   <div class="controls-container">
-    <button class="action-btn" id="reset-btn"><span class="icon">🔄</span> საწყისი ხედი</button>
-    <button class="action-btn" id="zoom-in-btn"><span class="icon">➕</span> Zoom In</button>
-    <button class="action-btn" id="zoom-out-btn"><span class="icon">➖</span> Zoom Out</button>
-    <button class="action-btn" id="autoplay-btn"><span class="icon">▶</span> Auto Play</button>
-    <button class="action-btn" id="autoreverse-btn"><span class="icon">◀</span> Auto Reverse</button>
-    <button class="action-btn" id="fullscreen-btn"><span class="icon">⛶</span> Fullscreen</button>
+    <button class="action-btn" id="reset-btn" title="საწყისი ხედი">🔄</button>
+    <button class="action-btn" id="zoom-in-btn" title="Zoom In">➕</button>
+    <button class="action-btn" id="zoom-out-btn" title="Zoom Out">➖</button>
+    <button class="action-btn" id="fullscreen-btn" title="მთელს ეკრანზე">⛶</button>
   </div>
 
   <div class="progress-bar-container">
@@ -170,9 +67,14 @@
       id: "openseadragon1",
       prefixUrl: "https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/images/",
       tileSources: [
-        { type: 'image', url: 'Space_1.jpg' },
-        { type: 'image', url: 'Space_2.jpg' },
-        { type: 'image', url: 'Space_3.jpg' }
+        { type: 'image', url: 'o1.png' },
+        { type: 'image', url: 'o2.png' },
+        { type: 'image', url: 'o3.png' },
+        { type: 'image', url: 'o4.png' },
+        { type: 'image', url: 'o5.png' },
+        { type: 'image', url: 'o6.png' },
+        { type: 'image', url: 'o7.png' },
+        { type: 'image', url: 'o8.png' }
       ],
       showNavigationControl: false,
       animationTime: 2.2,
@@ -180,265 +82,104 @@
       minZoomLevel: 0.8,
       maxZoomLevel: Infinity,
       visibilityRatio: 0.0,
-      constrainDuringPan: false,
-
       panHorizontal: false,
       panVertical: false,
-
-      zoomPerClick: 1.5,
-      zoomPerScroll: 1.15,
-      gestureSettingsTouch: {
-        pinchToZoom: true,
-        scrollToZoom: false,
-        clickToZoom: true,
-        pinchRotate: false,
-        flickEnabled: false,
-        dragToPan: false
-      },
-      gestureSettingsMouse: {
-        clickToZoom: true,
-        dblClickToZoom: true,
-        dragToPan: false
-      }
+      gestureSettingsTouch: { pinchToZoom: true, scrollToZoom: true, clickToZoom: true, dragToPan: true },
+      gestureSettingsMouse: { clickToZoom: false, dblClickToZoom: true, dragToPan: true, scrollToZoom: true }
     });
 
-    var relX1 = 0.7920, relY1 = 0.5174; 
-    var relX2 = 0.5000, relY2 = 0.5000; 
+    var laptopCoords = [
+      { x: 0.3375, y: 0.4572, w: 0.2524, h: 0.2786 }, // o1 -> o2
+      { x: 0.4540, y: 0.3372, w: 0.2107, h: 0.2104 }, // o2 -> o3
+      { x: 0.3895, y: 0.2920, w: 0.2169, h: 0.2348 }, // o3 -> o4
+      { x: 0.4609, y: 0.4240, w: 0.1701, h: 0.1590 }, // o4 -> o5
+      { x: 0.2527, y: 0.1945, w: 0.5003, h: 0.5522 }, // o5 -> o6
+      { x: 0.1978, y: 0.3799, w: 0.2841, h: 0.3340 }, // o6 -> o7
+      { x: 0.2763, y: 0.1494, w: 0.2033, h: 0.2239 }  // o7 -> o8
+    ];
 
-    var centerP1;
-    var centerP2;
-    var centerP3;
-    var maxZoomTarget = 1000000;
+    var centers = [];
 
     viewer.addHandler('open', function() {
-      var img1 = viewer.world.getItemAt(0);
-      if (img1) {
-        centerP1 = img1.getClippedBounds().getCenter();
+      var items = [];
+      for (var i = 0; i < viewer.world.getItemCount(); i++) {
+        items.push(viewer.world.getItemAt(i));
       }
 
-      var img2 = viewer.world.getItemAt(1);
-      var img3 = viewer.world.getItemAt(2);
+      if (items.length > 0) {
+        centers[0] = items[0].getBounds().getCenter();
+      }
 
-      if (img2) {
-        var scale2 = 0.001; 
-        img2.setWidth(scale2);
+      var prevBounds = items[0].getBounds();
+
+      for (var i = 1; i < items.length; i++) {
+        var img = items[i];
+        var c = laptopCoords[i - 1];
+
+        img.setOpacity(0);
         
-        var aspect2 = img2.source.aspectRatio;
-        var height2 = scale2 * aspect2;
+        let targetX = prevBounds.x + prevBounds.width * c.x;
+        let targetY = prevBounds.y + prevBounds.height * c.y;
+        let targetW = prevBounds.width * c.w;
+        
+        img.setWidth(targetW);
+        img.setPosition(new OpenSeadragon.Point(targetX, targetY));
 
-        var pX2 = relX1 - scale2 / 2;
-        var pY2 = relY1 - height2 / 2;
-        img2.setPosition(new OpenSeadragon.Point(pX2, pY2));
-
-        viewer.removeOverlay("marker2");
-        var marker2 = document.createElement("div");
-        marker2.id = "marker2";
-        marker2.className = "photo-marker";
-        viewer.addOverlay({ 
-          element: marker2, 
-          location: img2.getClippedBounds()
-        });
-
-        centerP2 = img2.getClippedBounds().getCenter();
-
-        if (img3) {
-          var scale3 = scale2 * scale2; 
-          img3.setWidth(scale3);
-          
-          var aspect3 = img3.source.aspectRatio;
-          var height3 = scale3 * aspect3;
-
-          var pX3 = (pX2 + relX2 * scale2) - scale3 / 2;
-          var pY3 = (pY2 + relY2 * height2) - height3 / 2;
-          img3.setPosition(new OpenSeadragon.Point(pX3, pY3));
-
-          viewer.removeOverlay("marker3");
-          var marker3 = document.createElement("div");
-          marker3.id = "marker3";
-          marker3.className = "photo-marker";
-          viewer.addOverlay({ 
-            element: marker3, 
-            location: img3.getClippedBounds()
-          });
-
-          centerP3 = img3.getClippedBounds().getCenter();
-        }
+        prevBounds = img.getBounds();
+        centers[i] = prevBounds.getCenter();
       }
 
-      // ვამატებთ 1.8 წამის (1800 მილიწამის) დაყოვნებას, რომ ყველაფერი სრულად დამთავრდეს ფარულად
       setTimeout(function() {
-        var viewerEl = document.getElementById('openseadragon1');
-        viewerEl.style.visibility = 'visible';
-        viewerEl.style.opacity = '1';
-      }, 1800);
+        var startTime = performance.now();
+        function fadeInImages(currentTime) {
+          var progress = Math.min((currentTime - startTime) / 1000, 1);
+          for (var i = 1; i < items.length; i++) {
+            items[i].setOpacity(progress);
+          }
+          if (progress < 1) {
+            requestAnimationFrame(fadeInImages);
+          } else {
+            var loader = document.getElementById('loader');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.remove(), 500);
+          }
+        }
+        requestAnimationFrame(fadeInImages);
+      }, 1000);
     });
 
     function getActiveCenter() {
       var currentZoom = viewer.viewport.getZoom();
-      if (currentZoom > 1000 && centerP3) {
-        return centerP3;
-      } else if (currentZoom > 1.2 && centerP2) {
-        return centerP2;
-      }
-      return centerP1 || new OpenSeadragon.Point(0.5, 0.5);
+      if (currentZoom > 3000 && centers[7]) return centers[7];
+      if (currentZoom > 1500 && centers[6]) return centers[6];
+      if (currentZoom > 600 && centers[5]) return centers[5];
+      if (currentZoom > 250 && centers[4]) return centers[4];
+      if (currentZoom > 60 && centers[3]) return centers[3];
+      if (currentZoom > 15 && centers[2]) return centers[2];
+      if (currentZoom > 2.5 && centers[1]) return centers[1];
+      return centers[0] || new OpenSeadragon.Point(0.5, 0.5);
     }
 
-    function getCurrentProgress() {
-      var currentZoom = viewer.viewport.getZoom();
-      var minZoom = viewer.viewport.getMinZoom();
-      var progress = (Math.log(currentZoom / minZoom) / Math.log(maxZoomTarget / minZoom));
-      return Math.min(Math.max(progress, 0), 1);
-    }
-
-    var progressFill = document.getElementById('progress-fill');
     viewer.addHandler('zoom', function() {
-      var targetCenter = getActiveCenter();
-      viewer.viewport.panTo(targetCenter, false);
-
-      var progress = getCurrentProgress() * 100;
-      progressFill.style.width = progress + '%';
-    });
-
-    document.getElementById('reset-btn').addEventListener('click', function() {
-      window.location.reload();
-    });
-
-    document.getElementById('zoom-in-btn').addEventListener('click', function() {
-      stopAllAnimations();
+      viewer.viewport.panTo(getActiveCenter(), false);
       var currentZoom = viewer.viewport.getZoom();
-      var targetCenter = getActiveCenter();
-      viewer.viewport.zoomTo(currentZoom * 1.4, targetCenter, false);
+      var progress = Math.min(Math.max((currentZoom - 1) / 150, 0), 1) * 100;
+      document.getElementById('progress-fill').style.width = progress + '%';
     });
 
-    document.getElementById('zoom-out-btn').addEventListener('click', function() {
-      stopAllAnimations();
-      var currentZoom = viewer.viewport.getZoom();
-      var targetCenter = getActiveCenter();
-      viewer.viewport.zoomTo(currentZoom * 0.7, targetCenter, false);
-    });
-
-    function stopAllAnimations() {
-      stopAutoPlay();
-      stopAutoReverse();
-    }
-
-    var isAutoPlaying = false;
-    var autoPlayInterval;
-    var autoplayBtn = document.getElementById('autoplay-btn');
-
-    function startAutoPlay() {
-      stopAllAnimations();
-      isAutoPlaying = true;
-      autoplayBtn.classList.add('active');
-      autoplayBtn.innerHTML = '<span class="icon">⏸</span> Pause';
-      
-      autoPlayInterval = setInterval(function() {
-        var p = getCurrentProgress(); 
-
-        if (p >= 0.999) {
-          stopAutoPlay();
-          return;
-        }
-
-        var speedFactor = Math.sin(p * Math.PI); 
-        var zoomMultiplier = 1.004 + (0.012 * speedFactor);
-
-        var currentZoom = viewer.viewport.getZoom();
-        var targetCenter = getActiveCenter();
-        viewer.viewport.zoomTo(currentZoom * zoomMultiplier, targetCenter, false);
-      }, 30);
-    }
-
-    function stopAutoPlay() {
-      if (isAutoPlaying) {
-        isAutoPlaying = false;
-        clearInterval(autoPlayInterval);
-        autoplayBtn.classList.remove('active');
-        autoplayBtn.innerHTML = '<span class="icon">▶</span> Auto Play';
-      }
-    }
-
-    autoplayBtn.addEventListener('click', function() {
-      if (isAutoPlaying) {
-        stopAutoPlay();
-      } else {
-        startAutoPlay();
+    // საწყისი ხედის ღილაკი აბრუნებს ვიზუალს პირველ ფოტოზე (Unzoom) გვერდის განახლების გარეშე
+    document.getElementById('reset-btn').addEventListener('click', () => {
+      if (centers[0]) {
+        viewer.viewport.zoomTo(viewer.viewport.getMinZoom(), centers[0], true);
       }
     });
 
-    var isAutoReversing = false;
-    var autoReverseInterval;
-    var autoreverseBtn = document.getElementById('autoreverse-btn');
-
-    function startAutoReverse() {
-      stopAllAnimations();
-      isAutoReversing = true;
-      autoreverseBtn.classList.add('active');
-      autoreverseBtn.innerHTML = '<span class="icon">⏸</span> Pause Rev';
-      
-      autoReverseInterval = setInterval(function() {
-        var p = getCurrentProgress(); 
-        var minZoom = viewer.viewport.getMinZoom();
-
-        if (p <= 0.001 || viewer.viewport.getZoom() <= minZoom * 1.01) {
-          stopAutoReverse();
-          viewer.viewport.zoomTo(minZoom, centerP1, false);
-          viewer.viewport.panTo(centerP1, false);
-          return;
-        }
-
-        var speedFactor = Math.sin(p * Math.PI); 
-        var zoomDivisor = 1.004 + (0.012 * speedFactor);
-
-        var currentZoom = viewer.viewport.getZoom();
-        var targetCenter = getActiveCenter();
-        viewer.viewport.zoomTo(currentZoom / zoomDivisor, targetCenter, false);
-      }, 30);
-    }
-
-    function stopAutoReverse() {
-      if (isAutoReversing) {
-        isAutoReversing = false;
-        clearInterval(autoReverseInterval);
-        autoreverseBtn.classList.remove('active');
-        autoreverseBtn.innerHTML = '<span class="icon">◀</span> Auto Reverse';
-      }
-    }
-
-    autoreverseBtn.addEventListener('click', function() {
-      if (isAutoReversing) {
-        stopAutoReverse();
-      } else {
-        startAutoReverse();
-      }
-    });
-
-    document.getElementById('fullscreen-btn').addEventListener('click', function() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-          console.log(`Fullscreen error: {err.message}`);
-        });
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        }
-      }
-    });
-
-    window.addEventListener('keydown', function(e) {
-      if (e.key === '+' || e.key === '=') {
-        stopAllAnimations();
-        var currentZoom = viewer.viewport.getZoom();
-        viewer.viewport.zoomTo(currentZoom * 1.3, getActiveCenter(), false);
-      } else if (e.key === '-' || e.key === '_') {
-        stopAllAnimations();
-        var currentZoom = viewer.viewport.getZoom();
-        viewer.viewport.zoomTo(currentZoom * 0.77, getActiveCenter(), false);
-      } else if (e.key === ' ' || e.key === 'Escape') {
-        window.location.reload();
-      }
+    document.getElementById('zoom-in-btn').addEventListener('click', () => viewer.viewport.zoomTo(viewer.viewport.getZoom() * 1.4, getActiveCenter(), false));
+    document.getElementById('zoom-out-btn').addEventListener('click', () => viewer.viewport.zoomTo(viewer.viewport.getZoom() * 0.7, getActiveCenter(), false));
+    document.getElementById('fullscreen-btn').addEventListener('click', () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else if (document.exitFullscreen) document.exitFullscreen();
     });
   </script>
-
 </body>
 </html>
