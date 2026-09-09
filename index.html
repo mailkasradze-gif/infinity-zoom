@@ -79,10 +79,10 @@
       showNavigationControl: false,
       animationTime: 2.2,
       springStiffness: 3.5,
-      minZoomLevel: 0.8,
+      minZoomLevel: 0.5,
       maxZoomLevel: Infinity,
-      visibilityRatio: 1.0, // გაზრდილია 1.0-მდე, რათა ეკრანმა სრულად დააკავშიროს საზღვრები და ცენტრში დაიჭიროს
-      homeFillsViewer: true, // უზრუნველყოფს პირველი ფოტოს სწორად და ცენტრში ჩჯდომას როგორც კომპიუტერზე, ისე მობილურზე
+      visibilityRatio: 1.0,
+      homeFillsViewer: false, // არავსებს ეკრანს ავტომატურად, რათა ფოტო დარჩეს რეალურ ზომაში
       panHorizontal: true,
       panVertical: true,
       gestureSettingsTouch: { pinchToZoom: true, scrollToZoom: true, clickToZoom: true, dragToPan: true },
@@ -130,8 +130,10 @@
         centers[i] = prevBounds.getCenter();
       }
 
-      // იძულებით ვასწორებთ საწყის პოზიციას ცენტრში ჩატვირთვისას
-      viewer.viewport.goHome(true);
+      // პირველი ფოტოს ორიგინალ ზომაში ცენტრში დაყენება
+      if (centers[0]) {
+        viewer.viewport.zoomTo(1.0, centers[0], true);
+      }
 
       setTimeout(function() {
         var startTime = performance.now();
@@ -171,9 +173,11 @@
       document.getElementById('progress-fill').style.width = progress + '%';
     });
 
-    // საწყისი ხედის ღილაკი აბრუნებს ვიზუალს პირველ ფოტოზე და სრულად აცენტრებს
+    // საწყისი ღილაკი აბრუნებს პირველ ფოტოს რეალურ ზომასა და სრულ ცენტრში
     document.getElementById('reset-btn').addEventListener('click', () => {
-      viewer.viewport.goHome(true);
+      if (centers[0]) {
+        viewer.viewport.zoomTo(1.0, centers[0], true);
+      }
     });
 
     document.getElementById('zoom-in-btn').addEventListener('click', () => viewer.viewport.zoomTo(viewer.viewport.getZoom() * 1.4, getActiveCenter(), false));
