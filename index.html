@@ -79,11 +79,12 @@
       showNavigationControl: false,
       animationTime: 2.2,
       springStiffness: 3.5,
-      minZoomLevel: 0.8,
+      minZoomLevel: 0.5,
       maxZoomLevel: Infinity,
-      visibilityRatio: 0.0,
-      panHorizontal: false,
-      panVertical: false,
+      visibilityRatio: 1.0,
+      homeFillsViewer: true, // ვრთავთ True-ს, რათა პირველი ფოტო სრულად ჩაჯდეს ჰორიზონტალურად (Fit width)
+      panHorizontal: true,
+      panVertical: true,
       gestureSettingsTouch: { pinchToZoom: true, scrollToZoom: true, clickToZoom: true, dragToPan: true },
       gestureSettingsMouse: { clickToZoom: false, dblClickToZoom: true, dragToPan: true, scrollToZoom: true }
     });
@@ -107,7 +108,8 @@
       }
 
       if (items.length > 0) {
-        centers[0] = items[0].getBounds().getCenter();
+        var b0 = items[0].getBounds();
+        centers[0] = new OpenSeadragon.Point(b0.x + b0.width / 2, b0.y + b0.height / 2);
       }
 
       var prevBounds = items[0].getBounds();
@@ -126,8 +128,12 @@
         img.setPosition(new OpenSeadragon.Point(targetX, targetY));
 
         prevBounds = img.getBounds();
-        centers[i] = prevBounds.getCenter();
+        var curB = img.getBounds();
+        centers[i] = new OpenSeadragon.Point(curB.x + curB.width / 2, curB.y + curB.height / 2);
       }
+
+      // goHome() იყენებს homeFillsViewer პარამეტრს და ათანაბრებს ფოტოს ეკრანის სიგანეზე, თან აცენტრებს ზუსტად შუაში
+      viewer.viewport.goHome(true);
 
       setTimeout(function() {
         var startTime = performance.now();
@@ -167,7 +173,11 @@
       document.getElementById('progress-fill').style.width = progress + '%';
     });
 
-    document.getElementById('reset-btn').addEventListener('click', () => window.location.reload());
+    // საწყისი ღილაკი აბრუნებს ფოტოს თავდაპირველ Fit სიგანისა და სრულად ცენტრალურ მდგომარეობაში
+    document.getElementById('reset-btn').addEventListener('click', () => {
+      viewer.viewport.goHome(true);
+    });
+
     document.getElementById('zoom-in-btn').addEventListener('click', () => viewer.viewport.zoomTo(viewer.viewport.getZoom() * 1.4, getActiveCenter(), false));
     document.getElementById('zoom-out-btn').addEventListener('click', () => viewer.viewport.zoomTo(viewer.viewport.getZoom() * 0.7, getActiveCenter(), false));
     document.getElementById('fullscreen-btn').addEventListener('click', () => {
