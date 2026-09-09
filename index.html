@@ -82,7 +82,7 @@
       minZoomLevel: 0.5,
       maxZoomLevel: Infinity,
       visibilityRatio: 1.0,
-      homeFillsViewer: false,
+      homeFillsViewer: true, // ვრთავთ True-ს, რათა პირველი ფოტო სრულად ჩაჯდეს ჰორიზონტალურად (Fit width)
       panHorizontal: true,
       panVertical: true,
       gestureSettingsTouch: { pinchToZoom: true, scrollToZoom: true, clickToZoom: true, dragToPan: true },
@@ -108,7 +108,6 @@
       }
 
       if (items.length > 0) {
-        // პირველი ფოტოს რეალური ზომის ცენტრის ზუსტი გამოთვლა
         var b0 = items[0].getBounds();
         centers[0] = new OpenSeadragon.Point(b0.x + b0.width / 2, b0.y + b0.height / 2);
       }
@@ -133,10 +132,8 @@
         centers[i] = new OpenSeadragon.Point(curB.x + curB.width / 2, curB.y + curB.height / 2);
       }
 
-      // პირველი ფოტოს იძულებითი ცენტრირება ეკრანის მიმართ გახსნისთანავე
-      if (centers[0]) {
-        viewer.viewport.panTo(centers[0], true);
-      }
+      // goHome() იყენებს homeFillsViewer პარამეტრს და ათანაბრებს ფოტოს ეკრანის სიგანეზე, თან აცენტრებს ზუსტად შუაში
+      viewer.viewport.goHome(true);
 
       setTimeout(function() {
         var startTime = performance.now();
@@ -176,12 +173,9 @@
       document.getElementById('progress-fill').style.width = progress + '%';
     });
 
-    // საწყისი ღილაკი აბრუნებს პირველ ფოტოს რეალურ ზომასა და ზუსტად ეკრანის შუაში
+    // საწყისი ღილაკი აბრუნებს ფოტოს თავდაპირველ Fit სიგანისა და სრულად ცენტრალურ მდგომარეობაში
     document.getElementById('reset-btn').addEventListener('click', () => {
-      if (centers[0]) {
-        viewer.viewport.zoomTo(1.0, centers[0], true);
-        viewer.viewport.panTo(centers[0], true);
-      }
+      viewer.viewport.goHome(true);
     });
 
     document.getElementById('zoom-in-btn').addEventListener('click', () => viewer.viewport.zoomTo(viewer.viewport.getZoom() * 1.4, getActiveCenter(), false));
