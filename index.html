@@ -14,7 +14,6 @@
     }
     #openseadragon1 { width: 100vw; height: 100vh; }
     
-    /* ღილაკების განთავსება ქვედა მხარეს ცენტრში */
     .controls-container {
       position: absolute; bottom: 45px; left: 50%; transform: translateX(-50%);
       z-index: 1000; display: flex; flex-direction: row; gap: 12px;
@@ -36,7 +35,6 @@
       height: 100%; width: 0%; background: linear-gradient(90deg, #00d2ff, #b224ef, #f12711);
       transition: width 0.1s ease-out;
     }
-    /* დამტვირთავი ეკრანი (Loading Screen) */
     #loader {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: #000; z-index: 9999; display: flex;
@@ -82,7 +80,7 @@
       minZoomLevel: 0.5,
       maxZoomLevel: Infinity,
       visibilityRatio: 1.0,
-      homeFillsViewer: true, // ვრთავთ True-ს, რათა პირველი ფოტო სრულად ჩაჯდეს ჰორიზონტალურად (Fit width)
+      homeFillsViewer: false,
       panHorizontal: true,
       panVertical: true,
       gestureSettingsTouch: { pinchToZoom: true, scrollToZoom: true, clickToZoom: true, dragToPan: true },
@@ -100,6 +98,22 @@
     ];
 
     var centers = [];
+
+    // ფუნქცია, რომელიც ათავსებს ფოტოს სიგანეზე (Fit Width) და Y ღერძზე ოდნავ ზემოთ წევს
+    function setCustomHome(instant) {
+      var items = viewer.world.getItemCount();
+      if (items > 0) {
+        var item = viewer.world.getItemAt(0);
+        var b = item.getBounds();
+        var centerX = b.x + b.width / 2;
+        // ვამცირებთ Y კოორდინატს, რათა ფოტო ზემოთ აიწიოს (შეგიძლიათ მცირედით შეცვალოთ ეს კოეფიციენტი)
+        var shiftedY = (b.y + b.height / 2) - (b.height * 0.08); 
+        var targetCenter = new OpenSeadragon.Point(centerX, shiftedY);
+        
+        viewer.viewport.zoomTo(1.0, targetCenter, instant);
+        viewer.viewport.panTo(targetCenter, instant);
+      }
+    }
 
     viewer.addHandler('open', function() {
       var items = [];
@@ -132,8 +146,8 @@
         centers[i] = new OpenSeadragon.Point(curB.x + curB.width / 2, curB.y + curB.height / 2);
       }
 
-      // goHome() იყენებს homeFillsViewer პარამეტრს და ათანაბრებს ფოტოს ეკრანის სიგანეზე, თან აცენტრებს ზუსტად შუაში
-      viewer.viewport.goHome(true);
+      // ვუძღვნით მორგებულ საწყის პოზიციას
+      setCustomHome(true);
 
       setTimeout(function() {
         var startTime = performance.now();
@@ -173,13 +187,13 @@
       document.getElementById('progress-fill').style.width = progress + '%';
     });
 
-    // საწყისი ღილაკი აბრუნებს ფოტოს თავდაპირველ Fit სიგანისა და სრულად ცენტრალურ მდგომარეობაში
+    // საწყისი ღილაკი აბრუნებს აწეულ პოზიციაზე
     document.getElementById('reset-btn').addEventListener('click', () => {
-      viewer.viewport.goHome(true);
+      setCustomHome(true);
     });
 
     document.getElementById('zoom-in-btn').addEventListener('click', () => viewer.viewport.zoomTo(viewer.viewport.getZoom() * 1.4, getActiveCenter(), false));
-    document.getElementById('zoom-out-btn').addEventListener('click', () => viewer.viewport.zoomTo(viewer.viewport.getZoom() * 0.7, getActiveCenter(), false));
+    document.getElementById('zoom-out-btn', () => {}).addEventListener('click', () => viewer.viewport.zoomTo(viewer.viewport.getZoom() * 0.7, getActiveCenter(), false));
     document.getElementById('fullscreen-btn').addEventListener('click', () => {
       if (!document.fullscreenElement) document.documentElement.requestFullscreen();
       else if (document.exitFullscreen) document.exitFullscreen();
