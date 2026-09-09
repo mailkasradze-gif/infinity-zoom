@@ -14,6 +14,7 @@
     }
     #openseadragon1 { width: 100vw; height: 100vh; }
     
+    /* ღილაკების განთავსება ქვედა მხარეს ცენტრში */
     .controls-container {
       position: absolute; bottom: 45px; left: 50%; transform: translateX(-50%);
       z-index: 1000; display: flex; flex-direction: row; gap: 12px;
@@ -35,6 +36,7 @@
       height: 100%; width: 0%; background: linear-gradient(90deg, #00d2ff, #b224ef, #f12711);
       transition: width 0.1s ease-out;
     }
+    /* დამტვირთავი ეკრანი (Loading Screen) */
     #loader {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: #000; z-index: 9999; display: flex;
@@ -77,10 +79,10 @@
       showNavigationControl: false,
       animationTime: 2.2,
       springStiffness: 3.5,
-      minZoomLevel: 0.5,
+      minZoomLevel: 0.8,
       maxZoomLevel: Infinity,
-      visibilityRatio: 1.0,
-      homeFillsViewer: true, // აფიქსირებს ფოტოს ზუსტად ეკრანის სიგანეზე
+      visibilityRatio: 1.0, // გაზრდილია 1.0-მდე, რათა ეკრანმა სრულად დააკავშიროს საზღვრები და ცენტრში დაიჭიროს
+      homeFillsViewer: true, // უზრუნველყოფს პირველი ფოტოს სწორად და ცენტრში ჩჯდომას როგორც კომპიუტერზე, ისე მობილურზე
       panHorizontal: true,
       panVertical: true,
       gestureSettingsTouch: { pinchToZoom: true, scrollToZoom: true, clickToZoom: true, dragToPan: true },
@@ -106,8 +108,7 @@
       }
 
       if (items.length > 0) {
-        var b0 = items[0].getBounds();
-        centers[0] = new OpenSeadragon.Point(b0.x + b0.width / 2, b0.y + b0.height / 2);
+        centers[0] = items[0].getBounds().getCenter();
       }
 
       var prevBounds = items[0].getBounds();
@@ -126,11 +127,10 @@
         img.setPosition(new OpenSeadragon.Point(targetX, targetY));
 
         prevBounds = img.getBounds();
-        var curB = img.getBounds();
-        centers[i] = new OpenSeadragon.Point(curB.x + curB.width / 2, curB.y + curB.height / 2);
+        centers[i] = prevBounds.getCenter();
       }
 
-      // იყენებს სტანდარტულ goHome მეთოდს, რომელიც სრულად აბალანსებს ფოტოს ეკრანზე
+      // იძულებით ვასწორებთ საწყის პოზიციას ცენტრში ჩატვირთვისას
       viewer.viewport.goHome(true);
 
       setTimeout(function() {
@@ -171,6 +171,7 @@
       document.getElementById('progress-fill').style.width = progress + '%';
     });
 
+    // საწყისი ხედის ღილაკი აბრუნებს ვიზუალს პირველ ფოტოზე და სრულად აცენტრებს
     document.getElementById('reset-btn').addEventListener('click', () => {
       viewer.viewport.goHome(true);
     });
