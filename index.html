@@ -167,13 +167,7 @@
       document.getElementById('progress-fill').style.width = progress + '%';
     });
 
-    // საწყისი ხედის ღილაკი აბრუნებს ვიზუალს პირველ ფოტოზე (Unzoom) გვერდის განახლების გარეშე
-    document.getElementById('reset-btn').addEventListener('click', () => {
-      if (centers[0]) {
-        viewer.viewport.zoomTo(viewer.viewport.getMinZoom(), centers[0], true);
-      }
-    });
-
+    document.getElementById('reset-btn').addEventListener('click', () => window.location.reload());
     document.getElementById('zoom-in-btn').addEventListener('click', () => viewer.viewport.zoomTo(viewer.viewport.getZoom() * 1.4, getActiveCenter(), false));
     document.getElementById('zoom-out-btn').addEventListener('click', () => viewer.viewport.zoomTo(viewer.viewport.getZoom() * 0.7, getActiveCenter(), false));
     document.getElementById('fullscreen-btn').addEventListener('click', () => {
