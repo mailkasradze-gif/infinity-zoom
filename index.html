@@ -80,7 +80,7 @@
       minZoomLevel: 0.5,
       maxZoomLevel: Infinity,
       visibilityRatio: 1.0,
-      homeFillsViewer: true, // აფიქსირებს ფოტოს ზუსტად ეკრანის სიგანეზე
+      homeFillsViewer: false,
       panHorizontal: true,
       panVertical: true,
       gestureSettingsTouch: { pinchToZoom: true, scrollToZoom: true, clickToZoom: true, dragToPan: true },
@@ -98,6 +98,23 @@
     ];
 
     var centers = [];
+
+    // ზუსტი საწყისი პოზიცია: Fit სიგანეზე და ოდნავ ზემოთ აწეული იმისათვის, რომ ქვედა ღილაკებს არ ფარავდეს
+    function setPerfectHome(instant) {
+      var items = viewer.world.getItemCount();
+      if (items > 0) {
+        var item = viewer.world.getItemAt(0);
+        var b = item.getBounds();
+        var centerX = b.x + b.width / 2;
+        var centerY = b.y + b.height / 2;
+        
+        // ვწევთ ოდნავ ზემოთ (ვაკლებთ Y კოორდინატს მცირე პროპორციით)
+        var offsetCenter = new OpenSeadragon.Point(centerX, centerY - (b.height * 0.05));
+        
+        viewer.viewport.zoomTo(1.0, offsetCenter, instant);
+        viewer.viewport.panTo(offsetCenter, instant);
+      }
+    }
 
     viewer.addHandler('open', function() {
       var items = [];
@@ -130,8 +147,7 @@
         centers[i] = new OpenSeadragon.Point(curB.x + curB.width / 2, curB.y + curB.height / 2);
       }
 
-      // იყენებს სტანდარტულ goHome მეთოდს, რომელიც სრულად აბალანსებს ფოტოს ეკრანზე
-      viewer.viewport.goHome(true);
+      setPerfectHome(true);
 
       setTimeout(function() {
         var startTime = performance.now();
@@ -172,7 +188,7 @@
     });
 
     document.getElementById('reset-btn').addEventListener('click', () => {
-      viewer.viewport.goHome(true);
+      setPerfectHome(true);
     });
 
     document.getElementById('zoom-in-btn').addEventListener('click', () => viewer.viewport.zoomTo(viewer.viewport.getZoom() * 1.4, getActiveCenter(), false));
