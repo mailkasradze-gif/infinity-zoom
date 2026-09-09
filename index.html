@@ -82,7 +82,7 @@
       minZoomLevel: 0.5,
       maxZoomLevel: Infinity,
       visibilityRatio: 1.0,
-      homeFillsViewer: false, // არავსებს ეკრანს ავტომატურად, რათა ფოტო დარჩეს რეალურ ზომაში
+      homeFillsViewer: false,
       panHorizontal: true,
       panVertical: true,
       gestureSettingsTouch: { pinchToZoom: true, scrollToZoom: true, clickToZoom: true, dragToPan: true },
@@ -108,7 +108,9 @@
       }
 
       if (items.length > 0) {
-        centers[0] = items[0].getBounds().getCenter();
+        // პირველი ფოტოს რეალური ზომის ცენტრის ზუსტი გამოთვლა
+        var b0 = items[0].getBounds();
+        centers[0] = new OpenSeadragon.Point(b0.x + b0.width / 2, b0.y + b0.height / 2);
       }
 
       var prevBounds = items[0].getBounds();
@@ -127,12 +129,13 @@
         img.setPosition(new OpenSeadragon.Point(targetX, targetY));
 
         prevBounds = img.getBounds();
-        centers[i] = prevBounds.getCenter();
+        var curB = img.getBounds();
+        centers[i] = new OpenSeadragon.Point(curB.x + curB.width / 2, curB.y + curB.height / 2);
       }
 
-      // პირველი ფოტოს ორიგინალ ზომაში ცენტრში დაყენება
+      // პირველი ფოტოს იძულებითი ცენტრირება ეკრანის მიმართ გახსნისთანავე
       if (centers[0]) {
-        viewer.viewport.zoomTo(1.0, centers[0], true);
+        viewer.viewport.panTo(centers[0], true);
       }
 
       setTimeout(function() {
@@ -173,10 +176,11 @@
       document.getElementById('progress-fill').style.width = progress + '%';
     });
 
-    // საწყისი ღილაკი აბრუნებს პირველ ფოტოს რეალურ ზომასა და სრულ ცენტრში
+    // საწყისი ღილაკი აბრუნებს პირველ ფოტოს რეალურ ზომასა და ზუსტად ეკრანის შუაში
     document.getElementById('reset-btn').addEventListener('click', () => {
       if (centers[0]) {
         viewer.viewport.zoomTo(1.0, centers[0], true);
+        viewer.viewport.panTo(centers[0], true);
       }
     });
 
