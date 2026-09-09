@@ -80,7 +80,7 @@
       minZoomLevel: 0.5,
       maxZoomLevel: Infinity,
       visibilityRatio: 1.0,
-      homeFillsViewer: false,
+      homeFillsViewer: true, // აფიქსირებს ფოტოს ზუსტად ეკრანის სიგანეზე
       panHorizontal: true,
       panVertical: true,
       gestureSettingsTouch: { pinchToZoom: true, scrollToZoom: true, clickToZoom: true, dragToPan: true },
@@ -98,22 +98,6 @@
     ];
 
     var centers = [];
-
-    // ფუნქცია, რომელიც ათავსებს ფოტოს სიგანეზე (Fit Width) და Y ღერძზე ოდნავ ზემოთ წევს
-    function setCustomHome(instant) {
-      var items = viewer.world.getItemCount();
-      if (items > 0) {
-        var item = viewer.world.getItemAt(0);
-        var b = item.getBounds();
-        var centerX = b.x + b.width / 2;
-        // ვამცირებთ Y კოორდინატს, რათა ფოტო ზემოთ აიწიოს (შეგიძლიათ მცირედით შეცვალოთ ეს კოეფიციენტი)
-        var shiftedY = (b.y + b.height / 2) - (b.height * 0.08); 
-        var targetCenter = new OpenSeadragon.Point(centerX, shiftedY);
-        
-        viewer.viewport.zoomTo(1.0, targetCenter, instant);
-        viewer.viewport.panTo(targetCenter, instant);
-      }
-    }
 
     viewer.addHandler('open', function() {
       var items = [];
@@ -146,8 +130,8 @@
         centers[i] = new OpenSeadragon.Point(curB.x + curB.width / 2, curB.y + curB.height / 2);
       }
 
-      // ვუძღვნით მორგებულ საწყის პოზიციას
-      setCustomHome(true);
+      // იყენებს სტანდარტულ goHome მეთოდს, რომელიც სრულად აბალანსებს ფოტოს ეკრანზე
+      viewer.viewport.goHome(true);
 
       setTimeout(function() {
         var startTime = performance.now();
@@ -187,13 +171,12 @@
       document.getElementById('progress-fill').style.width = progress + '%';
     });
 
-    // საწყისი ღილაკი აბრუნებს აწეულ პოზიციაზე
     document.getElementById('reset-btn').addEventListener('click', () => {
-      setCustomHome(true);
+      viewer.viewport.goHome(true);
     });
 
     document.getElementById('zoom-in-btn').addEventListener('click', () => viewer.viewport.zoomTo(viewer.viewport.getZoom() * 1.4, getActiveCenter(), false));
-    document.getElementById('zoom-out-btn', () => {}).addEventListener('click', () => viewer.viewport.zoomTo(viewer.viewport.getZoom() * 0.7, getActiveCenter(), false));
+    document.getElementById('zoom-out-btn').addEventListener('click', () => viewer.viewport.zoomTo(viewer.viewport.getZoom() * 0.7, getActiveCenter(), false));
     document.getElementById('fullscreen-btn').addEventListener('click', () => {
       if (!document.fullscreenElement) document.documentElement.requestFullscreen();
       else if (document.exitFullscreen) document.exitFullscreen();
